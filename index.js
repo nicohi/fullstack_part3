@@ -1,8 +1,11 @@
 const express = require('express')
+const morgan = require('morgan')
 //import express from 'express'
 
 const app = express()
 app.use(express.json())
+morgan.token('req-body', (req, res) => { return JSON.stringify(req.body) })
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'))
 
 const getRandomInt = max => {
   return Math.floor(Math.random() * max);
@@ -41,8 +44,6 @@ app.get('/api/persons/:id', (req, res) => {
   const id = Number(req.params.id)
   const person = persons.find(p => p.id === id)
   if (!person) {
-    //res.statusMessage = `Person with id:${id} not found`;
-    //return res.status(404).end();
     return res.status(404).json({error:`Person with id:${id} not found`})
   }
   res.json(person)
