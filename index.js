@@ -4,6 +4,12 @@ const express = require('express')
 const app = express()
 app.use(express.json())
 
+const getRandomInt = max => {
+  return Math.floor(Math.random() * max);
+}
+
+const nextId = () => getRandomInt(100000000000000000)
+
 var persons = [
     {
       "id": 1,
@@ -45,6 +51,18 @@ app.delete('/api/persons/:id', (req, res) => {
   const id = Number(req.params.id)
   persons = persons.filter(p => p.id !== id)
   res.status(204).end()
+})
+
+app.post('/api/persons', (req, res) => {
+  const person = { ...req.body, id: nextId() }
+  if (!person.name)
+    return res.status(400).json({error: `No name provided`})
+  if (!person.number)
+    return res.status(400).json({error: `No number provided`})
+  if (persons.find(p => p.name === person.name))
+    return res.status(400).json({error: `Person with name "${person.name}" already exists`})
+  persons = persons.concat(person)
+  res.json(person)
 })
 
 app.get('/info', (request, response) => {
